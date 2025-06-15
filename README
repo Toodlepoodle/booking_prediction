@@ -1,0 +1,367 @@
+# 🚌 Bus Demand Forecasting - Hackathon Solution
+
+A comprehensive machine learning solution for predicting bus journey demand 15 days in advance. This project implements advanced feature engineering, ensemble modeling, and domain-specific insights to achieve competitive performance.
+
+## 🎯 Problem Statement
+
+Predict the total number of seats booked for bus journeys 15 days before the actual travel date. The model must account for various factors including:
+- Holiday calendars and regional events
+- Wedding seasons and school schedules
+- Day-of-week effects and long weekends
+- Route characteristics and city tiers
+- Historical booking patterns
+
+## 🏗️ Project Structure
+
+```
+bus_demand_forecasting/
+├── data/
+│   ├── raw/                    # Original datasets
+│   ├── processed/              # Processed datasets
+│   └── submissions/            # Generated submissions
+├── src/
+│   ├── __init__.py
+│   ├── config.py              # Configuration settings
+│   ├── data_loader.py         # Data loading and validation
+│   ├── feature_engineering.py # Feature creation
+│   ├── models.py              # Model training and prediction
+│   ├── ensemble.py            # Ensemble methods
+│   └── utils.py               # Utility functions
+├── notebooks/                  # Jupyter notebooks for analysis
+├── models/                     # Saved model artifacts
+├── logs/                       # Execution logs
+├── plots/                      # Generated visualizations
+├── tests/                      # Unit tests
+├── main.py                     # Main execution script
+├── requirements.txt            # Python dependencies
+└── README.md                   # This file
+```
+
+## 🚀 Quick Start
+
+### Installation
+
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd bus_demand_forecasting
+```
+
+2. **Install dependencies**
+```bash
+pip install -r requirements.txt
+```
+
+3. **Prepare your data**
+Place the following files in `data/raw/`:
+- `train.csv` - Training data with target variable
+- `test_8gqdJqH.csv` - Test data for predictions
+- `transactions.csv` - Detailed booking transactions
+
+### Basic Usage
+
+**Run the complete pipeline:**
+```bash
+python main.py
+```
+
+**Run with specific ensemble method:**
+```bash
+python main.py --ensemble-method bma
+```
+
+**Available ensemble methods:**
+- `weighted_average` (default) - Performance-weighted ensemble
+- `simple_average` - Simple mean of all models
+- `bma` - Bayesian Model Averaging
+- `dynamic` - Route-adaptive weighting
+- `rank_average` - Rank-based ensemble
+
+### Advanced Usage
+
+**Custom configuration:**
+```bash
+# Skip model saving (faster execution)
+python main.py --no-save-models
+
+# Skip visualization generation
+python main.py --no-plots
+
+# Change logging level
+python main.py --log-level DEBUG
+```
+
+## 🧠 Model Architecture
+
+### Ensemble Strategy
+The solution uses a **5-model ensemble** optimized for different aspects:
+
+1. **LightGBM** (30% weight) - Advanced gradient boosting for complex patterns
+2. **XGBoost** (25% weight) - Robust tree-based learning
+3. **Random Forest** (20% weight) - Handles non-linear interactions
+4. **Gradient Boosting** (15% weight) - Sequential error correction
+5. **Ridge Regression** (10% weight) - Linear baseline with regularization
+
+### Key Features
+
+#### 🗓️ **Calendar Intelligence**
+- Cyclical encoding of dates (sin/cos transformations)
+- Indian holiday calendar integration
+- Weekend/weekday patterns
+- Season and quarter effects
+- Holiday proximity features
+
+#### 🛣️ **Route Analytics**
+- Source-destination pair analysis
+- City tier combinations (Tier 1, 2, 3)
+- Inter-state vs intra-state routes
+- Route popularity metrics
+- Historical route performance
+
+#### 📊 **Booking Behavior**
+- Search-to-booking conversion rates
+- Booking velocity (seats per search)
+- Early vs last-minute booking patterns
+- 15-day prediction window optimization
+- Cumulative booking trends
+
+#### 📈 **Time Series Features**
+- Lag features (1, 2, 3, 7, 14 days)
+- Rolling window statistics
+- Seasonal decomposition
+- Trend analysis
+
+## 🎯 Feature Engineering Deep Dive
+
+### Domain-Specific Features
+
+**Holiday Intelligence:**
+```python
+# Indian holiday calendar with proximity
+'doj_is_holiday'          # Direct holiday indicator
+'doj_days_to_holiday'     # Days until next holiday
+'doj_near_holiday'        # Within 3 days of holiday
+```
+
+**Route Characteristics:**
+```python
+# Route complexity indicators
+'same_region'             # Intra-state travel
+'tier_combination'        # City tier transitions
+'route_popularity'        # Historical booking frequency
+```
+
+**Booking Patterns:**
+```python
+# Demand prediction features
+'seats_15d_before'        # Bookings 15 days prior
+'conversion_rate'         # Search-to-booking ratio
+'booking_velocity'        # Seats per search
+```
+
+### Advanced Transformations
+
+**Cyclical Encoding:**
+```python
+# Preserves temporal relationships
+month_sin = sin(2π × month / 12)
+month_cos = cos(2π × month / 12)
+```
+
+**Aggregation Features:**
+- Route-level: mean, max, std of historical bookings
+- City-level: source/destination popularity
+- Date-level: weekend vs weekday patterns
+
+## 📊 Performance Optimization
+
+### Cross-Validation Strategy
+- **5-fold cross-validation** for robust model evaluation
+- **Time-aware splitting** to prevent data leakage
+- **Route-stratified folds** for representative validation
+
+### Model Selection Criteria
+1. **RMSE minimization** (competition metric)
+2. **Prediction stability** across CV folds
+3. **Route coverage** for unseen patterns
+4. **Ensemble diversity** for robustness
+
+### Memory Optimization
+- **Datatype optimization** (int64 → int32, float64 → float32)
+- **Categorical encoding** for high-cardinality features
+- **Feature selection** based on importance scores
+
+## 🔍 Model Validation & Analysis
+
+### Automated Validation
+The pipeline includes comprehensive validation:
+
+```python
+# Prediction validation
+validate_predictions()     # Check for negatives, outliers
+analyze_consistency()      # Model agreement analysis
+validate_submission()      # Format compliance
+```
+
+### Feature Importance Analysis
+- **SHAP values** for model interpretability
+- **Permutation importance** for feature ranking
+- **Cross-model consensus** on key features
+
+### Performance Monitoring
+- **Real-time CV scoring** during training
+- **Prediction distribution analysis**
+- **Model correlation tracking**
+
+## 📈 Expected Performance
+
+### Competitive Advantages
+1. **Domain Expertise**: Deep understanding of Indian travel patterns
+2. **Feature Quality**: 100+ engineered features with domain knowledge
+3. **Ensemble Robustness**: Multiple algorithms with optimized weights
+4. **Validation Rigor**: Comprehensive testing and validation
+
+### Performance Targets
+- **Top 10% leaderboard** position expected
+- **Sub-50 RMSE** on validation set
+- **Robust generalization** across different routes and time periods
+
+## 🛠️ Customization Guide
+
+### Adding New Features
+```python
+# In src/feature_engineering.py
+def create_custom_features(self, df):
+    # Add your feature engineering logic
+    df['new_feature'] = df['existing_col'].transform(custom_func)
+    return df
+```
+
+### Adding New Models
+```python
+# In src/models.py
+def create_custom_model(self):
+    from sklearn.ensemble import ExtraTreesRegressor
+    self.models['extra_trees'] = ExtraTreesRegressor(
+        n_estimators=500,
+        random_state=42
+    )
+```
+
+### Custom Ensemble Methods
+```python
+# In src/ensemble.py
+def custom_ensemble(self, predictions):
+    # Implement your ensemble logic
+    return custom_weighted_average(predictions)
+```
+
+## 🧪 Testing & Validation
+
+### Unit Tests
+```bash
+# Run all tests
+python -m pytest tests/
+
+# Run specific test file
+python -m pytest tests/test_features.py -v
+```
+
+### Data Quality Checks
+The pipeline automatically validates:
+- Missing value patterns
+- Data type consistency
+- Date range validity
+- Route coverage analysis
+
+## 📊 Monitoring & Logging
+
+### Comprehensive Logging
+All pipeline steps are logged with timestamps:
+- Data loading and validation
+- Feature engineering progress
+- Model training metrics
+- Prediction statistics
+
+### Performance Tracking
+```python
+# Automatic performance reports
+create_model_performance_report()  # CV scores summary
+plot_feature_importance()          # Top features visualization
+analyze_prediction_consistency()   # Model agreement analysis
+```
+
+## 🔧 Troubleshooting
+
+### Common Issues
+
+**Memory Issues:**
+```bash
+# Reduce memory usage
+python main.py --no-plots --no-save-models
+```
+
+**Missing Dependencies:**
+```bash
+# Install missing packages
+pip install -r requirements.txt --upgrade
+```
+
+**Data File Issues:**
+```
+# Check file placement
+data/raw/train.csv ✓
+data/raw/test_8gqdJqH.csv ✓
+data/raw/transactions.csv ✓
+```
+
+### Performance Debugging
+```python
+# Enable debug logging
+python main.py --log-level DEBUG
+
+# Check feature importance
+# Review logs/bus_forecasting_*.log
+# Examine plots/feature_importance_*.png
+```
+
+## 🤝 Contributing
+
+### Development Setup
+1. Fork the repository
+2. Create feature branch: `git checkout -b feature-name`
+3. Make changes and test: `python -m pytest`
+4. Submit pull request
+
+### Code Standards
+- Follow PEP 8 style guidelines
+- Add docstrings to all functions
+- Include unit tests for new features
+- Update README for significant changes
+
+## 📞 Support
+
+For questions or issues:
+1. Check the troubleshooting section
+2. Review execution logs in `logs/`
+3. Examine generated plots in `plots/`
+4. Create issue with detailed error information
+
+## 🏆 Competition Tips
+
+### For Maximum Performance:
+1. **Experiment with ensemble weights** in `src/config.py`
+2. **Add domain-specific features** based on local knowledge
+3. **Tune hyperparameters** for individual models
+4. **Analyze prediction errors** to identify improvement areas
+
+### Feature Engineering Ideas:
+- Regional festival calendars
+- Economic indicators (GDP, employment)
+- Weather patterns (monsoon seasons)
+- Transportation strikes or events
+- Cricket match schedules (India-specific)
+
+---
+
+**Good luck with the hackathon! 🚀**
